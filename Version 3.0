@@ -1,0 +1,89 @@
+const moment = require('moment');
+console.log("Tournament Name : Cricket");
+
+let teams_and_homegrounds = [
+  {
+    team: 'Chennai Super Kings',
+    city: 'Chennai'
+  },
+  {
+    team: 'Delhi Capitals',
+    city: 'Delhi'
+  },
+  {
+    team: 'Gujarat Titans',
+    city: 'Gujarat'
+  },
+  {
+    team: 'Kolkata Knight Riders',
+    city: 'Kolkata'
+  },
+  {
+  team : "Lucknow Super Giants",
+  city : "Lucknow"
+},
+{
+  team : "Mumbai Indians",
+  city : "Mumbai"
+},
+{
+  team : "Punjab Kings",
+  city : "Punjab"
+},
+{
+  team : "Rajasthan Royals",
+  city : "Rajasthan"
+},
+{
+  team : "Sunrisers Hydrabad",
+  city : "Hydrabad"
+}
+];
+
+let start_date = moment('2024-01-01T16:00:00+00:00');
+let schedule = [];
+let matches_per_weekday = 1;
+let weekend_per_match = 2;
+
+const printArray = (schedule) => {
+      for(let p=schedule.length - 1;p>0;p--){
+        const j = Math.floor(Math.random() * (p + 1));
+        const temp = schedule[p];
+        schedule[p] = schedule[j];
+        schedule[j] = temp;
+      }
+    }
+// let result;
+
+for (let i = 0; i < teams_and_homegrounds.length; i++) {
+  
+  let newArray = [];
+  for (let j = 0; j < teams_and_homegrounds.length; j++) {
+    if (j !== i) {
+      let copyObject = {
+        [`${j + 1}`]: {
+          team: teams_and_homegrounds[j].team,
+          city: teams_and_homegrounds[j].city
+        }
+      };
+      newArray.push(copyObject);
+    }
+  }
+
+  for (let k = 0; k < newArray.length; k++) {
+    let key = Object.keys(newArray[k])[0];
+    let match = {
+      team1: teams_and_homegrounds[i].team,
+      team2: newArray[k][key].team,
+      city: newArray[k][key].city,
+      date: start_date.format("YYYY-MM-DD"),
+      day: start_date.format("dddd")
+    };
+    schedule.push(match);
+    start_date.add(1, 'd');
+  }
+}
+
+const result = printArray(schedule);
+console.log(schedule);
+console.log(schedule.length);
