@@ -106,39 +106,77 @@ let startDate = moment('2024-01-01');
 //   return moment(currentDate).add(days, 'days');
 // };
 
-for(let week=0;week<totalWeeks;week++){
-  for(let j=0;j<7;j++){
-    let currentDate = startDate.clone().add(week,'weeks').add(j,'days');
-    if(currentDate.day()>=1 && currentDate.day()<=5){
-      weekdays.push({matchdate : currentDate.format('YYYY-MM-DD'),matchday : currentDate.format('dddd')});
-    }else{
-      weekends.push({matchdate : currentDate.format('YYYY-MM-DD'),matchday : currentDate.format('dddd')});
-      weekends.push({matchdate : currentDate.format('YYYY-MM-DD'),matchday : currentDate.format('dddd')});
+// for(let week=0;week<totalWeeks;week++){
+//   for(let j=0;j<7;j++){
+//     let currentDate = startDate.clone().add(week,'weeks').add(j,'days');
+//     if(currentDate.day()>=1 && currentDate.day()<=5){
+//       weekdays.push({matchdate : currentDate.format('YYYY-MM-DD'),matchday : currentDate.format('dddd')});
+//     }else{
+//       weekends.push({matchdate : currentDate.format('YYYY-MM-DD'),matchday : currentDate.format('dddd')});
+//       weekends.push({matchdate : currentDate.format('YYYY-MM-DD'),matchday : currentDate.format('dddd')});
+//     }
+//   }
+// }
+
+// //handle remaining days 2 (may be they are weekdays)
+// for (let i = 0; i < remainingDays; i++) {
+//   const currentDate = startDate.clone().add(totalWeeks, 'weeks').add(i, 'days');
+//   if (currentDate.day() >= 1 && currentDate.day() <= 5) {
+//     weekdays.push({ matchdate: currentDate.format('YYYY-MM-DD'), matchday: currentDate.format('dddd') });
+//   } else {
+//     weekends.push({ matchdate: currentDate.format('YYYY-MM-DD'), matchday: currentDate.format('dddd') });
+//     weekends.push({ matchdate: currentDate.format('YYYY-MM-DD'), matchday: currentDate.format('dddd') });
+//   }
+// }
+
+// // console.log("weekdays",weekdays);
+// // console.log("weekends",weekends);
+
+// // Merge weekdays and weekends arrays
+// const allMatches = weekdays.concat(weekends);
+
+// // Sort the merged array based on matchdate
+// allMatches.sort((a, b) => {
+//   return new Date(a.matchdate) - new Date(b.matchdate);
+// });
+
+const totalMatchesToPlay = totalDays;
+let matchesPlayed = 0;
+
+for (let week = 0; week < totalWeeks; week++) {
+  for (let j = 0; j < 7; j++) {
+    if (matchesPlayed >= totalMatchesToPlay) {
+      break;
+    }
+
+    let currentDate = startDate.clone().add(week, 'weeks').add(j, 'days');
+
+    if (currentDate.day() >= 1 && currentDate.day() <= 5) {
+      weekdays.push({ matchdate: currentDate.format('YYYY-MM-DD'), matchday: currentDate.format('dddd') });
+      matchesPlayed++;
+    } else {
+      weekends.push({ matchdate: currentDate.format('YYYY-MM-DD'), matchday: currentDate.format('dddd') });
+      matchesPlayed++;
+
+      if (matchesPlayed < totalMatchesToPlay) {
+        weekends.push({ matchdate: currentDate.format('YYYY-MM-DD'), matchday: currentDate.format('dddd') });
+        matchesPlayed++;
+      }
     }
   }
-}
 
-//handle remaining days 2 (may be they are weekdays)
-for (let i = 0; i < remainingDays; i++) {
-  const currentDate = startDate.clone().add(totalWeeks, 'weeks').add(i, 'days');
-  if (currentDate.day() >= 1 && currentDate.day() <= 5) {
-    weekdays.push({ matchdate: currentDate.format('YYYY-MM-DD'), matchday: currentDate.format('dddd') });
-  } else {
-    weekends.push({ matchdate: currentDate.format('YYYY-MM-DD'), matchday: currentDate.format('dddd') });
-    weekends.push({ matchdate: currentDate.format('YYYY-MM-DD'), matchday: currentDate.format('dddd') });
+  if (matchesPlayed >= totalMatchesToPlay) {
+    break;
   }
 }
 
-// console.log("weekdays",weekdays);
-// console.log("weekends",weekends);
+allMatches = weekdays.concat(weekends);
 
-// Merge weekdays and weekends arrays
-const allMatches = weekdays.concat(weekends);
-
-// Sort the merged array based on matchdate
 allMatches.sort((a, b) => {
   return new Date(a.matchdate) - new Date(b.matchdate);
 });
+
+console.log("allMatches", allMatches);
 
 // Now allMatches is a sorted array containing both weekdays and weekends matches
 console.log(allMatches);
