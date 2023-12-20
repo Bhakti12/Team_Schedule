@@ -62,46 +62,6 @@ let schedule = [];
 
 let startDate = moment('2024-01-01');
 
-// const assignMatches = (match,weekday,weekend) => {
-//   for(let i = 0;i<match.length - 1;i++){
-//     let isWeekend = match[i].day === "Saturday" || match[i].day === "Sunday";
-    
-//     let matchInfo = {
-//       team1 : match[i].team2,
-//       team2 : match[i+1].team2,
-//       city : match[i+1].city
-//     };
-    
-//     const matchDate = match[i].date;
-//     const dayArray = isWeekend ? weekend : weekday;
-    
-//     // Check if the current day already has two matches for weekends
-//     const existingMatchesOnDay = dayArray.filter((item) => item.matchdate === matchDate);
-    
-//     if (isWeekend && existingMatchesOnDay.length >= 2) {
-//       // If there are already two matches for the weekend, skip adding more
-//       continue;
-//     }
-
-//     const existingMatch = dayArray.find((item) => item.matchdate === matchDate);
-
-//     if (existingMatch) {
-//       // Merge the team information into the existing object
-//       Object.assign(existingMatch, matchInfo);
-//     } else {
-//       // If the match date is not found, create a new object
-//       const newMatch = {
-//         matchdate: match[i].date,
-//         matchday: match[i].day,
-//         ...matchInfo,
-//       };
-
-//       // Push the new object to weekdays or weekends array
-//       dayArray.push(newMatch);
-//     }
-//   }
-// }; 
-
 // schedule teams and their homegrounds
 for (let i = 0; i < teams_and_homegrounds.length; i++) {
   
@@ -128,7 +88,7 @@ for (let i = 0; i < teams_and_homegrounds.length; i++) {
     schedule.push(match);
   }
 }
-console.log(schedule);
+// console.log(schedule);
 
 const totalMatchesToPlay = totalDays;
 let matchesPlayed = 0;
@@ -147,11 +107,6 @@ for (let week = 0; week < totalWeeks; week++) {
     } else {
       weekends.push({ matchdate: currentDate.format('YYYY-MM-DD'), matchday: currentDate.format('dddd') });
       matchesPlayed++;
-
-      if (matchesPlayed < totalMatchesToPlay) {
-        weekends.push({ matchdate: currentDate.format('YYYY-MM-DD'), matchday: currentDate.format('dddd') });
-        matchesPlayed++;
-      }
     }
   }
 
@@ -166,15 +121,66 @@ allMatches.sort((a, b) => {
   return new Date(a.matchdate) - new Date(b.matchdate);
 });
 
-console.log("allMatches", allMatches);
+// console.log("allMatches", allMatches);
 
 // Now allMatches is a sorted array containing both weekdays and weekends matches
 // console.log(allMatches);
-console.log(allMatches.length);
+// console.log(allMatches.length);
 
-// assignMatches(schedule,weekdays,weekends);
+function generateMatches(allMatches, teams) {
+  const generatedMatches = [];
+  function isTeamUsed(team, prevMatch) {
+    // console.log(prevMatch.team1 === team || prevMatch.team2 === team);
+    return prevMatch.team1 === team || prevMatch.team2 === team;
+  }
+  function getNextTeam(currentIndex, teams) {
+    const teamIndex = (currentIndex + 1) % teams.length;
+    return teams[teamIndex];
+  }
 
-// console.log("assign matches weekdays",weekdays);
-// console.log("assign matches weekends",weekends);
+  let currentIndex = 0;
+  let consecutiveDays = 0;
+
+  for (const match of allMatches) {
+    const currentDate = new Date(match.matchdate);
+    const matchTeams = [];
+
+    const matchesPerDay = match.matchday === 'Saturday' || match.matchday === 'Sunday' ? 2 : 1;
+
+    for (let i = 0; i < matchesPerDay; i++) {
+      const currentTeam = teams[currentIndex];
+      matchTeams.push({
+        matchdate: match.matchdate,
+        matchday: match.matchday,
+        team1: currentTeam.team1,
+        team2: currentTeam.team2,
+        city: currentTeam.city,
+      });
+
+      currentIndex = (currentIndex + 1) % teams.length;
+      consecutiveDays++;
+      while (
+        isTeamUsed(teams[currentIndex].team1, matchTeams[i]) ||
+        isTeamUsed(teams[currentIndex].team2, matchTeams[i]) ||
+        Math.abs(new Date(allMatches[currentIndex].matchdate) - currentDate) <= 5
+      ) {
+        currentIndex = (currentIndex + 1) % teams.length;
+        consecutiveDays = 0;
+      }
+    }
+
+    generatedMatches.push(...matchTeams);
+  }
+
+  return generatedMatches;
+}
+
+// Generate the matches
+const result = generateMatches(allMatches, schedule);
+
+// Log the result
+console.log(result);
+// console.log(result.length);
+
 //assign them with weeends and weekdays 
 //if weekdays then 1 match if weekends then 2 match
